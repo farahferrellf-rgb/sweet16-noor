@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sweet 16 Noor 🍵</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+
+<style>
+:root{--bg1:#fff0f6;--bg2:#f1fff8;--accent1:#7fbf9b;--accent2:#5f8f7a;--text:#355f4b}
+*{box-sizing:border-box;font-family:'Poppins',sans-serif}
+body{
+  margin:0;
+  background:linear-gradient(180deg,var(--bg1),var(--bg2));
+  color:var(--text);
+  overflow-x:hidden;
+}
+
+/* HEADER */
+header{
+  padding:50px 20px 30px;
+  text-align:center;
+}
+header h1{
+  font-family:'Playfair Display',serif;
+  font-size:2.4rem;
+  color:#5f8f7a;
+}
+header p{opacity:.9}
+
+/* FEED */
+.feed{
+  display:flex;
+  flex-direction:column;
+  gap:28px;
+  padding:0 16px 80px;
+}
+
+.card{
+  background:white;
+  border-radius:28px;
+  overflow:hidden;
+  box-shadow:0 20px 45px rgba(0,0,0,.12);
+  animation:float 6s ease-in-out infinite;
+}
+
+.card img{
+  width:100%;
+  display:block;
+}
+
+/* CAPTION */
+.caption{
+  padding:18px;
+  text-align:center;
+}
+.caption h3{
+  margin-bottom:14px;
+}
+
+/* BUTTON */
+button{
+  background:linear-gradient(135deg,var(--accent1),var(--accent2));
+  color:white;
+  border:none;
+  padding:14px 36px;
+  border-radius:999px;
+  font-size:1rem;
+  cursor:pointer;
+  box-shadow:0 10px 25px rgba(0,0,0,.2);
+}
+
+/* FLOAT */
+@keyframes float{
+  0%{transform:translateY(0)}
+  50%{transform:translateY(-6px)}
+  100%{transform:translateY(0)}
+}
+
+/* POPUP */
+#popup{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.5);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:10;
+}
+.popup{
+  background:white;
+  width:90%;
+  max-width:320px;
+  border-radius:26px;
+  padding:26px;
+  text-align:center;
+}
+input{
+  width:100%;
+  padding:14px;
+  border-radius:14px;
+  border:1px solid #ccc;
+  margin-bottom:16px;
+}
+
+/* BALLOONS */
+.balloon{
+  position:fixed;
+  bottom:-120px;
+  width:34px;
+  height:44px;
+  border-radius:50%;
+  opacity:.55;
+  animation:fly linear forwards;
+  z-index:0;
+}
+.balloon::after{
+  content:'';
+  position:absolute;
+  bottom:-18px;
+  left:50%;
+  width:2px;
+  height:18px;
+  background:#aaa;
+  transform:translateX(-50%);
+}
+@keyframes fly{
+  to{transform:translateY(-120vh)}
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .card, .balloon { animation: none !important; transform: none !important; }
+}
+
+/* Small screens */
+@media (min-width: 640px){
+  .feed{max-width:640px;margin:0 auto}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>Sweet 16 Noor 🍵</h1>
+  <p>Vier mijn verjaardag & bestel een matcha ✨</p>
+</header>
+
+<section class="feed" aria-label="Dranken overzicht">
+
+  <div class="card">
+    <img src="classic.jpg" alt="Classic Matcha" loading="lazy">
+    <div class="caption">
+      <h3>Classic Matcha</h3>
+      <button type="button" data-drink="Classic Matcha">Bestel</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <img src="berry.jpg" alt="Berry Matcha" loading="lazy">
+    <div class="caption">
+      <h3>Berry Matcha</h3>
+      <button type="button" data-drink="Berry Matcha">Bestel</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <img src="mango.jpg" alt="Mango Matcha" loading="lazy">
+    <div class="caption">
+      <h3>Mango Matcha</h3>
+      <button type="button" data-drink="Mango Matcha">Bestel</button>
+    </div>
+  </div>
+
+</section>
+
+<div id="popup" role="dialog" aria-modal="true" aria-labelledby="drink" tabindex="-1">
+  <div class="popup">
+    <h3 id="drink"></h3>
+    <input id="name" placeholder="Jouw naam 💖" aria-label="Jouw naam">
+    <div style="display:flex;gap:8px;justify-content:center">
+      <button id="confirm">Bevestig 🎉</button>
+      <button id="cancel">Annuleer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Basic accessible modal + safe WhatsApp link + keyboard support
+const popup = document.getElementById('popup');
+const nameInput = document.getElementById('name');
+const drinkHeading = document.getElementById('drink');
+const confirmBtn = document.getElementById('confirm');
+const cancelBtn = document.getElementById('cancel');
+let selected = '';
+let lastFocused = null;
+
+// Attach listeners to buttons with data-drink
+document.querySelectorAll('button[data-drink]').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    order(e.currentTarget.getAttribute('data-drink'));
+  });
+});
+
+function order(drink){
+  selected = drink;
+  drinkHeading.innerText = drink;
+  lastFocused = document.activeElement;
+  popup.style.display = 'flex';
+  // wait a tick then focus input
+  setTimeout(()=> nameInput.focus(), 50);
+}
+
+function closePopup(){
+  popup.style.display = 'none';
+  selected = '';
+  nameInput.value = '';
+  if(lastFocused) lastFocused.focus();
+}
+
+// confirm -> send WhatsApp
+confirmBtn.addEventListener('click', sendWhatsApp);
+cancelBtn.addEventListener('click', closePopup);
+
+// overlay click closes
+popup.addEventListener('click', (e) => {
+  if(e.target === popup) closePopup();
+});
+
+// keyboard
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'Escape' && popup.style.display === 'flex'){
+    closePopup();
+  }
+  // trap focus inside modal when open
+  if(popup.style.display === 'flex' && e.key === 'Tab'){
+    const focusable = popup.querySelectorAll('button, input');
+    if(focusable.length === 0) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length -1];
+    if(e.shiftKey && document.activeElement === first){
+      e.preventDefault();
+      last.focus();
+    } else if(!e.shiftKey && document.activeElement === last){
+      e.preventDefault();
+      first.focus();
+    }
+  }
+});
+
+function sendWhatsApp(){
+  const name = nameInput.value.trim();
+  if(!name){
+    alert('Vul je naam in 💕');
+    nameInput.focus();
+    return;
+  }
+  const message = [
+    '🎉 Sweet 16 Noor 🎉',
+    'Naam: ' + name,
+    'Bestelling: ' + selected + ' 🍵'
+  ].join('\\n');
+
+  const url = 'https://wa.me/32476293106?text=' + encodeURIComponent(message);
+
+  // open in new tab safely
+  try{
+    window.open(url, '_blank', 'noopener,noreferrer');
+  }catch(e){
+    // fallback to location change
+    window.open(url, '_blank');
+  }
+
+  closePopup();
+}
+
+/* BALLOON SPAWNER */
+setInterval(()=>{
+  const b=document.createElement('div');
+  b.className='balloon';
+  b.style.left=Math.random()*100+'vw';
+  b.style.background=['#f4b6c2','#b7e4c7','#ffd6a5','#cdb4db'][Math.floor(Math.random()*4)];
+  b.style.animationDuration=(7+Math.random()*4)+'s';
+  document.body.appendChild(b);
+  setTimeout(()=>b.remove(),11000);
+},1200);
+</script>
+
+</body>
+</html>
