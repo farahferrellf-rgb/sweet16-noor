@@ -257,23 +257,32 @@ function sendWhatsApp(){
     nameInput.focus();
     return;
   }
-  const message = [
-    '🎉 Sweet 16 Noor 🎉',
-    'Naam: ' + name,
-    'Bestelling: ' + selected + ' 🍵'
-  ].join('\n');
 
-  const url = 'https://wa.me/32476293106?text=' + encodeURIComponent(message);
+  const endpoint = 'https://formspree.io/f/mrezeokz';
 
-  // open in new tab safely
-  try{
-    window.open(url, '_blank', 'noopener,noreferrer');
-  }catch(e){
-    // fallback to location change
-    window.open(url, '_blank');
-  }
-
-  closePopup();
+  fetch(endpoint, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name: name,
+      drink: selected,
+      site: 'Sweet 16 Noor'
+    })
+  })
+  .then(async (res) => {
+    if (res.ok) {
+      alert('Bestelling ontvangen — je krijgt een e‑mailbevestiging.');
+      closePopup();
+    } else {
+      const text = await res.text();
+      console.error('Formspree error', res.status, text);
+      alert('Kon bestelling niet versturen. Probeer later.');
+    }
+  })
+  .catch((err) => {
+    console.error('Network error', err);
+    alert('Netwerkfout. Probeer later.');
+  });
 }
 
 /* BALLOON SPAWNER */
